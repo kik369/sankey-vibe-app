@@ -9,6 +9,7 @@ An interactive application for creating and visualizing Sankey diagrams using Sv
 -   **[Svelte](https://svelte.dev/)** - Component framework
 -   **[Tailwind CSS](https://tailwindcss.com/)** - Utility-first CSS framework
 -   **[D3.js](https://d3js.org/)** - Data visualization library
+-   **[d3-sankey](https://github.com/d3/d3-sankey)** - D3 plugin for Sankey diagrams
 -   **[Handsontable](https://handsontable.com/)** - Spreadsheet component
 
 ## Getting Started
@@ -24,7 +25,7 @@ bun install
 Run the development server with hot-reload:
 
 ```bash
-bun run dev
+bun run vite
 ```
 
 This will start a Vite development server that automatically reloads when you make changes to your code.
