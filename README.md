@@ -1,10 +1,11 @@
 # Sankey Vibe App
 
-An interactive application for creating and visualizing Sankey diagrams using Svelte and D3.
+An interactive application for creating and visualizing Sankey diagrams using Svelte and D3, built with TypeScript.
 
 ## Technologies
 
--   **[Bun](https://bun.sh)** - JavaScript runtime & package manager
+-   **[TypeScript](https://www.typescriptlang.org/)** - Strongly typed programming language
+-   **[Bun](https://bun.sh)** - JavaScript/TypeScript runtime & package manager
 -   **[Vite](https://vitejs.dev/)** - Frontend build tool
 -   **[Svelte](https://svelte.dev/)** - Component framework
 -   **[Tailwind CSS](https://tailwindcss.com/)** - Utility-first CSS framework
@@ -52,15 +53,7 @@ bun run index.ts
 
 The project follows the structure outlined in the PLAN.md file:
 
--   `src/components/` - Svelte components
--   `src/lib/` - Utility classes and functions
--   `src/main.js` - Application entry point
+-   `src/components/` - Svelte components with TypeScript
+-   `src/lib/` - TypeScript utility classes and functions
+-   `src/main.ts` - Application entry point
 -   `src/App.svelte` - Main application component
-
-## Contributing
-
-See PLAN.md for detailed implementation steps and component structure.
-
----
-
-This project was created using `bun init` in bun v1.2.5. [Bun](https://bun.sh) is a fast all-in-one JavaScript runtime.
