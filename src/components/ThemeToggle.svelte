@@ -5,15 +5,15 @@
 
 <button
     onclick={() => themeStore.toggle()}
-    class="p-2 rounded-md border border-gray-300 dark:border-gray-600 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors duration-200"
+    class="p-2 rounded-full bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 transition-all duration-300 transform hover:scale-105"
     aria-label="Toggle theme"
 >
     {#if $themeStore === 'light'}
         <svg
             xmlns="http://www.w3.org/2000/svg"
-            class="h-5 w-5 text-gray-700 dark:text-gray-300"
-            fill="none"
+            class="h-5 w-5 text-indigo-600 dark:text-indigo-400"
             viewBox="0 0 24 24"
+            fill="none"
             stroke="currentColor"
             stroke-width="2"
         >
@@ -27,9 +27,9 @@
     {:else}
         <svg
             xmlns="http://www.w3.org/2000/svg"
-            class="h-5 w-5 text-gray-700 dark:text-gray-300"
-            fill="none"
+            class="h-5 w-5 text-yellow-400"
             viewBox="0 0 24 24"
+            fill="none"
             stroke="currentColor"
             stroke-width="2"
         >

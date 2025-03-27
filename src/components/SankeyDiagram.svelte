@@ -12,6 +12,9 @@
     import type { Node, Link } from '@/lib/DiagramData.svelte';
     // Import theme store
     import { themeStore } from '@/lib/theme.svelte';
+    // Add these imports for the color scale
+    import { scaleOrdinal } from 'd3-scale';
+    import { schemeCategory10 } from 'd3-scale-chromatic';
 
     const { diagramData }: { diagramData: DiagramData } = $props();
     let svgRef: SVGSVGElement;
@@ -29,6 +32,9 @@
     const width = 800;
     const height = 400;
     const margin = { top: 10, right: 100, bottom: 10, left: 100 };
+
+    // Create a color scale for nodes
+    const colorScale = scaleOrdinal(schemeCategory10);
 
     onMount(() => {
         svgSelection = d3
@@ -107,8 +113,13 @@
         linkGroup
             .append('path')
             .attr('d', sankeyLinkHorizontal())
-            .attr('stroke', d => (d.value > 0 ? '#3B82F6' : '#9CA3AF')) // Color based on value
-            .attr('stroke-width', d => Math.max(1, d.width ?? 1)); // Use d.width from layout
+            .attr('stroke', d => {
+                // Use the source node color with reduced opacity for links
+                const sourceNode = d.source as LayoutNode;
+                return d.value > 0 ? colorScale(sourceNode.name) : '#9CA3AF';
+            })
+            .attr('stroke-width', d => Math.max(1, d.width ?? 1))
+            .attr('stroke-opacity', 0.4); // Reduced from 0.5 for a more subtle look
 
         // Add titles for tooltips on links
         linkGroup.append('title').text(d => {
@@ -121,16 +132,18 @@
         // Add nodes (rectangles)
         const nodeGroup = svgSelection
             .append('g')
-            .attr('stroke', '#000') // Node border color
-            .attr('stroke-opacity', 0.5)
+            .attr('stroke', '#000')
+            .attr('stroke-opacity', 0.15) // Reduced from 0.5 for a more subtle border
             .selectAll('rect')
             .data(layoutNodes)
             .join('rect')
             .attr('x', d => d.x0 ?? 0)
             .attr('y', d => d.y0 ?? 0)
-            .attr('height', d => Math.max(1, (d.y1 ?? 0) - (d.y0 ?? 0))) // Ensure height is positive
-            .attr('width', d => (d.x1 ?? 0) - (d.x0 ?? 0)) // Use layout width
-            .attr('fill', '#60A5FA'); // Node fill color
+            .attr('height', d => Math.max(1, (d.y1 ?? 0) - (d.y0 ?? 0)))
+            .attr('width', d => (d.x1 ?? 0) - (d.x0 ?? 0))
+            .attr('fill', d => colorScale(d.name))
+            .attr('rx', 4) // Add rounded corners to nodes
+            .attr('ry', 4);
 
         // Add titles for tooltips on nodes
         nodeGroup.append('title').text(d => `${d.name}\nValue: ${d.value}`); // d.value is calculated by d3-sankey
@@ -138,20 +151,22 @@
         // Add node labels (text)
         svgSelection
             .append('g')
-            .attr('font-family', 'sans-serif')
-            .attr('font-size', 10)
+            .attr('font-family', 'system-ui, sans-serif')
+            .attr('font-size', 11) // Slightly larger font
+            .attr('font-weight', 500) // Medium weight for better readability
             .selectAll('text')
             .data(layoutNodes)
             .join('text')
             .attr('x', d =>
                 (d.x0 ?? 0) < width / 2 ? (d.x1 ?? 0) + 6 : (d.x0 ?? 0) - 6
-            ) // Position left/right
-            .attr('y', d => ((d.y1 ?? 0) + (d.y0 ?? 0)) / 2) // Center vertically
+            )
+            .attr('y', d => ((d.y1 ?? 0) + (d.y0 ?? 0)) / 2)
             .attr('dy', '0.35em')
             .attr('text-anchor', d =>
                 (d.x0 ?? 0) < width / 2 ? 'start' : 'end'
-            ) // Anchor left/right
-            .text(d => d.name);
+            )
+            .text(d => d.name)
+            .attr('fill', 'currentColor'); // This ensures text matches the theme color
     });
 </script>
 

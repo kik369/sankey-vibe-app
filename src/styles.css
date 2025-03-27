@@ -3,8 +3,84 @@
 @tailwind utilities;
 
 @layer base {
-    html {
-        @apply transition-colors duration-200;
+    :root {
+        --transition-speed: 200ms;
+        --radius-default: 0.5rem;
+        --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+        --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1),
+            0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1),
+            0 4px 6px -2px rgba(0, 0, 0, 0.05);
     }
-    /* Remove the body styling that's causing issues */
+
+    html {
+        @apply antialiased scroll-smooth;
+        text-rendering: optimizeLegibility;
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+    }
+
+    /* Smooth transitions for theme changes */
+    *,
+    *::before,
+    *::after {
+        transition: background-color var(--transition-speed) ease-in-out,
+            border-color var(--transition-speed) ease-in-out,
+            color var(--transition-speed) ease-in-out,
+            box-shadow var(--transition-speed) ease-in-out;
+    }
+
+    /* Typography improvements */
+    h1,
+    h2,
+    h3,
+    h4,
+    h5,
+    h6 {
+        @apply font-bold tracking-tight;
+    }
+
+    /* Focus styles for accessibility */
+    :focus-visible {
+        @apply outline-none ring-2 ring-blue-500 ring-offset-2;
+    }
+}
+
+@layer components {
+    /* Card component styling */
+    .card {
+        @apply bg-white dark:bg-gray-800 rounded-xl shadow-md overflow-hidden transition-all;
+    }
+
+    .card:hover {
+        @apply shadow-lg;
+    }
+
+    /* Button styling */
+    .btn {
+        @apply px-4 py-2 rounded-md font-medium transition-all duration-200
+               focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2;
+    }
+
+    .btn-primary {
+        @apply bg-blue-600 hover:bg-blue-700 text-white;
+    }
+
+    .btn-secondary {
+        @apply bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600
+               text-gray-800 dark:text-gray-200;
+    }
+}
+
+/* Handsontable theme integration improvements */
+.handsontable th {
+    font-weight: 600 !important;
+}
+
+.handsontable .htDimmed {
+    color: rgba(107, 114, 128, 0.8) !important;
+}
+
+.dark .handsontable .htDimmed {
+    color: rgba(209, 213, 219, 0.8) !important;
 }
