@@ -23,9 +23,15 @@
         // Some stricter flags (disabled by default)
         "noUnusedLocals": false,
         "noUnusedParameters": false,
-        "noPropertyAccessFromIndexSignature": false
+        "noPropertyAccessFromIndexSignature": false,
+
+        // Add baseUrl and paths for @ alias
+        "baseUrl": ".",
+        "paths": {
+            "@/*": ["./src/*"]
+        }
     },
-    "include": ["src/**/*", "app/**/*"],
+    "include": ["src/**/*", "svelte.config.js", "vite.config.ts"],
     "exclude": [
         "node_modules",
         "dist",

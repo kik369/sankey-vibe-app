@@ -1,40 +1,78 @@
-<script>
-    import { onMount } from 'svelte';
+<script lang="ts">
+    import { onMount, onDestroy } from 'svelte';
     import Handsontable from 'handsontable';
     import 'handsontable/dist/handsontable.full.min.css';
+    import type DiagramData from '@/lib/DiagramData';
 
-    const { diagramData } = $props();
-    let container;
+    const { diagramData }: { diagramData: DiagramData } = $props();
+    let container: HTMLDivElement;
+    let hot: Handsontable | null = null;
 
     onMount(() => {
-        const hot = new Handsontable(container, {
-            data: [['Start', 'End', 10]],
+        if (!container) return;
+
+        hot = new Handsontable(container, {
+            data: [
+                ['A', 'B', 10],
+                ['B', 'C', 5],
+                ['B', 'D', 5],
+            ],
             colHeaders: ['Source', 'Target', 'Value'],
             rowHeaders: true,
             licenseKey: 'non-commercial-and-evaluation',
+            contextMenu: true,
+            manualRowMove: true,
+            manualColumnMove: true,
+            autoWrapRow: true,
+            autoWrapCol: true,
+            minSpareRows: 1,
+            width: '100%',
+            height: 'auto',
+            stretchH: 'all',
 
-            afterChange: changes => {
-                if (changes) {
-                    const links = hot
+            afterChange: (changes, source) => {
+                if (source === 'loadData') {
+                    return;
+                }
+
+                if (changes && hot) {
+                    const rawData = hot
                         .getData()
+                        .filter(
+                            row =>
+                                row[0] != null &&
+                                row[1] != null &&
+                                row[2] != null
+                        )
                         .map(([source, target, value]) => ({
-                            source,
-                            target,
-                            value: +value,
+                            source: String(source),
+                            target: String(target),
+                            value: parseFloat(String(value)),
                         }));
 
-                    const nodes = Array.from(
-                        new Set(
-                            links.flatMap(link => [link.source, link.target])
-                        )
-                    ).map(name => ({ name }));
-
-                    diagramData.updateNodes(nodes);
-                    diagramData.updateLinks(links);
+                    diagramData.updateFromRawData(rawData);
                 }
             },
         });
+
+        const initialRawData = (hot.getData() as Array<Array<string | number>>)
+            .filter(row => row[0] != null && row[1] != null && row[2] != null)
+            .map(([source, target, value]) => ({
+                source: String(source),
+                target: String(target),
+                value: parseFloat(String(value)),
+            }));
+        diagramData.updateFromRawData(initialRawData);
+    });
+
+    onDestroy(() => {
+        if (hot) {
+            hot.destroy();
+        }
     });
 </script>
 
-<div bind:this={container} class="w-3/4 mx-auto mb-8"></div>
+<div
+    bind:this={container}
+    class="w-full border border-gray-300 rounded shadow"
+></div>
