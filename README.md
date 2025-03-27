@@ -43,12 +43,6 @@ bun run build
 bun run preview
 ```
 
-### Run once (without hot-reload)
-
-```bash
-bun run index.ts
-```
-
 ## Project Structure
 
 The project follows the structure outlined in the PLAN.md file:

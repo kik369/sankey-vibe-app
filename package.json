@@ -1,6 +1,5 @@
 {
     "name": "sankey-vibe-app",
-    "module": "index.ts",
     "type": "module",
     "private": true,
     "scripts": {
