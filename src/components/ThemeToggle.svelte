@@ -1,6 +1,6 @@
 <script lang="ts">
     // Import the store instance instead of the class/manager
-    import { themeStore } from '../lib/theme.svelte';
+    import { themeStore } from '@/lib/theme.svelte.ts';
 </script>
 
 <button
