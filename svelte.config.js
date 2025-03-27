@@ -7,7 +7,6 @@ const config = {
     },
     preprocess: vitePreprocess(),
     compilerOptions: {
-        // Enable Svelte 5 features
         runes: true,
     },
 };
