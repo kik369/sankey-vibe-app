@@ -26,6 +26,13 @@ function createThemeStore(): Writable<Theme> & { toggle: () => void } {
             } else {
                 root.classList.remove('dark');
             }
+
+            // Force a repaint to ensure theme changes apply everywhere
+            document.body.style.display = 'none';
+            setTimeout(() => {
+                document.body.style.display = '';
+            }, 5);
+
             try {
                 localStorage.setItem('theme', theme);
             } catch (error) {

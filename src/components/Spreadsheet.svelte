@@ -3,10 +3,28 @@
     import Handsontable from 'handsontable';
     import 'handsontable/dist/handsontable.full.min.css';
     import type DiagramData from '@/lib/DiagramData.svelte';
+    import { themeStore } from '@/lib/theme.svelte';
 
     const { diagramData }: { diagramData: DiagramData } = $props();
     let container: HTMLDivElement;
     let hot: Handsontable | null = null;
+    let unsubscribe: (() => void) | undefined;
+
+    // Add theme change handler
+    function updateHotTheme(theme: string) {
+        if (!hot) return;
+
+        // Force Handsontable to redraw with new theme
+        hot.render();
+
+        // Optional: Update some settings based on theme
+        if (theme === 'dark') {
+            // Apply any dark theme specific settings
+            container.classList.add('hot-dark-theme');
+        } else {
+            container.classList.remove('hot-dark-theme');
+        }
+    }
 
     // Better initial example data
     const initialData = [
@@ -26,6 +44,7 @@
             /* Light theme styles */
             .handsontable {
                 font-size: 14px;
+                font-family: system-ui, sans-serif;
             }
 
             /* Headers */
@@ -118,6 +137,9 @@
             },
         });
 
+        // Add theme subscription
+        unsubscribe = themeStore.subscribe(updateHotTheme);
+
         // Process initial data
         const initialRawData = initialData.map(([source, target, value]) => ({
             source: String(source),
@@ -130,6 +152,10 @@
     onDestroy(() => {
         if (hot) {
             hot.destroy();
+        }
+        // Clean up subscription
+        if (typeof unsubscribe === 'function') {
+            unsubscribe();
         }
     });
 </script>
@@ -151,3 +177,14 @@
         class="w-full rounded-lg shadow-inner overflow-hidden transition-colors duration-200"
     ></div>
 </div>
+
+<style>
+    :global(.handsontable) {
+        font-family: system-ui, sans-serif;
+    }
+
+    :global(.dark .handsontable) {
+        --hot-background-color: #1f2937;
+        --hot-cell-color: #e5e7eb;
+    }
+</style>

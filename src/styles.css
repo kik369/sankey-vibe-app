@@ -84,3 +84,44 @@
 .dark .handsontable .htDimmed {
     color: rgba(209, 213, 219, 0.8) !important;
 }
+
+/* Additional Handsontable dark theme improvements */
+.dark .handsontable {
+    --hot-background-color: #1f2937;
+    --hot-text-color: #e5e7eb;
+    --hot-border-color: #374151;
+}
+
+.dark .handsontable .htCore {
+    border-color: var(--hot-border-color);
+}
+
+.dark .handsontable .htCore th,
+.dark .handsontable .htCore td {
+    border-color: var(--hot-border-color);
+}
+
+/* Improve contrast for selected cells */
+.dark .handsontable .htCore tbody tr td.highlight {
+    background-color: rgba(79, 70, 229, 0.3) !important;
+}
+
+/* Force refresh on theme change */
+.hot-dark-theme .handsontable {
+    color-scheme: dark;
+}
+
+/* Responsive adjustments */
+@media (max-width: 640px) {
+    .handsontable {
+        font-size: 12px;
+    }
+
+    h1 {
+        font-size: 1.5rem;
+    }
+
+    h2 {
+        font-size: 1.25rem;
+    }
+}

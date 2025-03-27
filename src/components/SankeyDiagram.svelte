@@ -170,7 +170,6 @@
     });
 </script>
 
-<svg
-    bind:this={svgRef}
-    class="w-full border border-gray-200 dark:border-gray-700 rounded shadow-inner bg-white dark:bg-gray-800 transition-colors duration-200"
-></svg>
+<div class="w-full aspect-[2/1] overflow-x-auto">
+    <svg bind:this={svgRef} class="w-full h-full min-w-[800px]"></svg>
+</div>
