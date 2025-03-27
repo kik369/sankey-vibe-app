@@ -1,7 +1,4 @@
-// For Svelte 5, $state is a special $ prefix, not an actual import
-// The import was causing linter errors since it's a compiler feature
-// We'll use the $ prefix directly and remove the import
-
+// For Svelte 5, $state is a special rune for reactivity
 // Node interface
 export interface Node {
     name: string;
@@ -26,12 +23,12 @@ export interface RawLink {
 }
 
 export default class DiagramData {
-    // Use $ prefix for reactive state in Svelte 5
-    $nodes: Node[] = [{ name: 'Start' }, { name: 'End' }];
-    $links: Link[] = [{ source: 0, target: 1, value: 10 }];
+    // Use $state() initializer for reactive state in Svelte 5
+    nodes = $state<Node[]>([{ name: 'Start' }, { name: 'End' }]);
+    links = $state<Link[]>([{ source: 0, target: 1, value: 10 }]);
 
     constructor() {
-        // Initial state is set directly on the $ variables
+        // Initial state is set via $state() above
     }
 
     // Method to update nodes and links based on raw spreadsheet data
@@ -52,16 +49,16 @@ export default class DiagramData {
             )
         );
 
-        // Update the nodes state
-        this.$nodes = nodeNames.map((name: string) => ({ name }));
+        // Update the nodes state directly
+        this.nodes = nodeNames.map((name: string) => ({ name }));
 
         // Create a mapping from node name to its index
         const nodeIndexMap = new Map(
-            this.$nodes.map((node: Node, index: number) => [node.name, index])
+            this.nodes.map((node: Node, index: number) => [node.name, index])
         );
 
         // Update the links state by mapping names to indices
-        this.$links = validRawLinks
+        this.links = validRawLinks
             .map(link => ({
                 source: nodeIndexMap.get(link.source),
                 target: nodeIndexMap.get(link.target),
@@ -73,17 +70,8 @@ export default class DiagramData {
             ) as Link[]; // Assert type as Link after filtering undefined indices
     }
 
-    // Getter methods for Svelte components to use
-    get nodes(): Node[] {
-        return this.$nodes;
-    }
-
-    get links(): Link[] {
-        return this.$links;
-    }
-
     // For backward compatibility if needed
     getData(): { nodes: Node[]; links: Link[] } {
-        return { nodes: this.$nodes, links: this.$links };
+        return { nodes: this.nodes, links: this.links };
     }
 }

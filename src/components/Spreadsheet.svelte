@@ -2,7 +2,7 @@
     import { onMount, onDestroy } from 'svelte';
     import Handsontable from 'handsontable';
     import 'handsontable/dist/handsontable.full.min.css';
-    import type DiagramData from '@/lib/DiagramData';
+    import type DiagramData from '@/lib/DiagramData.svelte';
 
     const { diagramData }: { diagramData: DiagramData } = $props();
     let container: HTMLDivElement;

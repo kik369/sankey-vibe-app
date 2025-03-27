@@ -1,7 +1,7 @@
 <script lang="ts">
     import Spreadsheet from './components/Spreadsheet.svelte';
     import SankeyDiagram from './components/SankeyDiagram.svelte';
-    import DiagramData from './lib/DiagramData';
+    import DiagramData from './lib/DiagramData.svelte';
 
     const diagramData = new DiagramData();
 </script>

@@ -7,9 +7,9 @@
         type SankeyNode,
         type SankeyLink,
     } from 'd3-sankey';
-    import type DiagramData from '@/lib/DiagramData';
+    import type DiagramData from '@/lib/DiagramData.svelte';
     // Import Node and Link types
-    import type { Node, Link } from '@/lib/DiagramData';
+    import type { Node, Link } from '@/lib/DiagramData.svelte';
 
     const { diagramData }: { diagramData: DiagramData } = $props();
     let svgRef: SVGSVGElement;
@@ -63,7 +63,7 @@
 
         // Specify Node and Link types for d3Sankey
         const sankeyLayout = d3Sankey<Node, Link>()
-            .nodeId(d => d.name) // d is now typed as Node
+            // Remove nodeId to use default index-based node identification
             .nodeWidth(15)
             .nodePadding(10)
             // Adjust extent based on margins
@@ -109,11 +109,10 @@
             .attr('stroke-width', d => Math.max(1, d.width ?? 1)); // Use d.width from layout
 
         // Add titles for tooltips on links
-        // Using a simpler approach - after layout computation, source and target in d3-sankey are objects
         linkGroup.append('title').text(d => {
-            // Cast to any to avoid TypeScript errors - we know the structure
-            const sourceNode = d.source as any;
-            const targetNode = d.target as any;
+            // After layout, source and target are LayoutNode objects
+            const sourceNode = d.source as LayoutNode;
+            const targetNode = d.target as LayoutNode;
             return `${sourceNode.name} → ${targetNode.name}\nValue: ${d.value}`;
         });
 
