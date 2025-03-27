@@ -1,5 +1,10 @@
 export default {
-    content: ['./src/**/*.{html,js,svelte}'],
+    content: [
+        './index.html',
+        './src/**/*.{html,js,svelte,ts}',
+        './src/styles.css',
+    ],
+    darkMode: 'selector',
     theme: { extend: {} },
     plugins: [],
 };

@@ -74,5 +74,5 @@
 
 <div
     bind:this={container}
-    class="w-full border border-gray-300 rounded shadow"
+    class="w-full border border-gray-300 dark:border-gray-600 rounded shadow bg-white dark:bg-gray-800 transition-colors duration-200"
 ></div>

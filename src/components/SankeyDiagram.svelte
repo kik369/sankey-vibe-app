@@ -10,6 +10,8 @@
     import type DiagramData from '@/lib/DiagramData.svelte';
     // Import Node and Link types
     import type { Node, Link } from '@/lib/DiagramData.svelte';
+    // Import theme store
+    import { themeStore } from '@/lib/theme.svelte';
 
     const { diagramData }: { diagramData: DiagramData } = $props();
     let svgRef: SVGSVGElement;
@@ -155,5 +157,5 @@
 
 <svg
     bind:this={svgRef}
-    class="w-full border border-gray-200 rounded shadow-inner bg-white"
+    class="w-full border border-gray-200 dark:border-gray-700 rounded shadow-inner bg-white dark:bg-gray-800 transition-colors duration-200"
 ></svg>
