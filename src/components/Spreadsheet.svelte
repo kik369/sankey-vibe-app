@@ -3,7 +3,7 @@
     import Handsontable from 'handsontable';
     import 'handsontable/dist/handsontable.full.min.css';
 
-    export let diagramData;
+    const { diagramData } = $props();
     let container;
 
     onMount(() => {
