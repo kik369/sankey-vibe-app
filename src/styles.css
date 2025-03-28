@@ -4,7 +4,7 @@
 
 @layer base {
     :root {
-        --transition-speed: 200ms;
+        --transition-speed: 250ms;
         --radius-default: 0.5rem;
         --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
         --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1),
@@ -58,7 +58,7 @@
 
     /* Button styling */
     .btn {
-        @apply px-4 py-2 rounded-md font-medium transition-all duration-200
+        @apply px-4 py-2 rounded-md font-medium transition-all duration-250
                focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2;
     }
 
@@ -72,38 +72,83 @@
     }
 }
 
-/* Handsontable theme integration improvements */
+/* Comprehensive Handsontable styling */
+.handsontable {
+    font-family: system-ui, sans-serif !important;
+    font-size: 14px !important;
+}
+
+/* Light theme */
 .handsontable th {
+    background-color: #eef2ff !important; /* indigo-50 */
+    color: #4f46e5 !important; /* indigo-600 */
     font-weight: 600 !important;
 }
 
+.handsontable td {
+    color: #1f2937 !important; /* gray-800 */
+}
+
 .handsontable .htDimmed {
-    color: rgba(107, 114, 128, 0.8) !important;
+    color: rgba(107, 114, 128, 0.8) !important; /* gray-500 with opacity */
+}
+
+.handsontable .htCore {
+    border-color: #e5e7eb !important; /* gray-200 */
+}
+
+.handsontable .htCore th,
+.handsontable .htCore td {
+    border-color: #e5e7eb !important; /* gray-200 */
+}
+
+/* Dark theme */
+.dark .handsontable {
+    --hot-background-color: #1f2937; /* gray-800 */
+    --hot-text-color: #e5e7eb; /* gray-200 */
+    --hot-border-color: #374151; /* gray-700 */
+}
+
+.dark .handsontable th {
+    background-color: #312e81 !important; /* indigo-900 */
+    color: #c7d2fe !important; /* indigo-200 */
+}
+
+.dark .handsontable td {
+    color: #e5e7eb !important; /* gray-200 */
+    background-color: #1f2937 !important; /* gray-800 */
 }
 
 .dark .handsontable .htDimmed {
-    color: rgba(209, 213, 219, 0.8) !important;
-}
-
-/* Additional Handsontable dark theme improvements */
-.dark .handsontable {
-    --hot-background-color: #1f2937;
-    --hot-text-color: #e5e7eb;
-    --hot-border-color: #374151;
+    color: rgba(209, 213, 219, 0.8) !important; /* gray-300 with opacity */
 }
 
 .dark .handsontable .htCore {
-    border-color: var(--hot-border-color);
+    border-color: #374151 !important; /* gray-700 */
 }
 
 .dark .handsontable .htCore th,
 .dark .handsontable .htCore td {
-    border-color: var(--hot-border-color);
+    border-color: #374151 !important; /* gray-700 */
 }
 
-/* Improve contrast for selected cells */
+/* Selection styling */
 .dark .handsontable .htCore tbody tr td.highlight {
-    background-color: rgba(79, 70, 229, 0.3) !important;
+    background-color: rgba(
+        79,
+        70,
+        229,
+        0.3
+    ) !important; /* indigo-600 with opacity */
+}
+
+.handsontable .htCore tbody tr td.highlight {
+    background-color: rgba(
+        79,
+        70,
+        229,
+        0.15
+    ) !important; /* indigo-600 with less opacity for light mode */
 }
 
 /* Force refresh on theme change */
@@ -114,7 +159,7 @@
 /* Responsive adjustments */
 @media (max-width: 640px) {
     .handsontable {
-        font-size: 12px;
+        font-size: 12px !important;
     }
 
     h1 {

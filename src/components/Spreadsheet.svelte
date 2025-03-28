@@ -160,12 +160,14 @@
     });
 </script>
 
-<div class="space-y-4">
+<div class="space-y-6">
     <div
-        class="text-sm text-gray-600 dark:text-gray-400 bg-blue-50 dark:bg-blue-900/20 p-3 rounded-lg"
+        class="text-sm text-gray-600 dark:text-gray-400 bg-blue-50 dark:bg-blue-900/20 p-4 rounded-lg shadow-sm"
     >
-        <p class="font-medium">Instructions:</p>
-        <ul class="list-disc list-inside mt-1 space-y-1">
+        <p class="font-medium text-gray-800 dark:text-gray-200">
+            Instructions:
+        </p>
+        <ul class="list-disc list-inside mt-2 space-y-1.5">
             <li>Enter source and target names for each flow connection</li>
             <li>Use numeric values for the flow magnitude</li>
             <li>Add rows as needed for additional connections</li>
@@ -174,17 +176,10 @@
 
     <div
         bind:this={container}
-        class="w-full rounded-lg shadow-inner overflow-hidden transition-colors duration-200"
+        class="w-full rounded-lg shadow-md border border-gray-200 dark:border-gray-700 overflow-hidden transition-colors duration-200"
     ></div>
 </div>
 
 <style>
-    :global(.handsontable) {
-        font-family: system-ui, sans-serif;
-    }
-
-    :global(.dark .handsontable) {
-        --hot-background-color: #1f2937;
-        --hot-cell-color: #e5e7eb;
-    }
+    /* Moving global styles to src/styles.css for better organization */
 </style>

@@ -11,7 +11,7 @@
     class="min-h-screen mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-12 bg-white dark:bg-gray-900"
 >
     <div
-        class="w-full max-w-5xl mx-auto flex justify-between items-center mb-10 px-4"
+        class="w-full max-w-5xl mx-auto flex justify-between items-center mb-16 px-4"
     >
         <div class="flex items-center">
             <svg
@@ -33,19 +33,19 @@
             >
                 Sankey Vibe!
             </h1>
-            <span class="ml-3 text-sm text-gray-500 dark:text-gray-400">
+            <span class="ml-4 text-base text-gray-600 dark:text-gray-400">
                 Interactive Flow Visualization
             </span>
         </div>
         <ThemeToggle />
     </div>
 
-    <div class="w-full max-w-5xl mx-auto space-y-8 px-4">
+    <div class="w-full max-w-5xl mx-auto space-y-12 px-4">
         <div
-            class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 mb-8 border border-gray-100 dark:border-gray-700"
+            class="bg-white dark:bg-gray-800 rounded-lg shadow-md hover:shadow-lg p-8 mb-8 border border-gray-200 dark:border-gray-700 transition-shadow duration-300"
         >
             <div
-                class="border-b border-gray-200 dark:border-gray-700 pb-4 mb-4"
+                class="border-b border-gray-200 dark:border-gray-700 pb-5 mb-6"
             >
                 <h2
                     class="text-xl font-semibold text-gray-800 dark:text-gray-200"
@@ -62,10 +62,10 @@
         </div>
 
         <div
-            class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 mb-8 border border-gray-100 dark:border-gray-700"
+            class="bg-white dark:bg-gray-800 rounded-lg shadow-md hover:shadow-lg p-8 mb-8 border border-gray-200 dark:border-gray-700 transition-shadow duration-300"
         >
             <div
-                class="border-b border-gray-200 dark:border-gray-700 pb-4 mb-4"
+                class="border-b border-gray-200 dark:border-gray-700 pb-5 mb-6"
             >
                 <h2
                     class="text-xl font-semibold text-gray-800 dark:text-gray-200"
@@ -82,9 +82,9 @@
         </div>
     </div>
 
-    <footer class="mt-12 py-4 text-center">
+    <footer class="mt-20 py-4 text-center">
         <div
-            class="bg-blue-50 dark:bg-blue-900/20 px-4 py-2 rounded-lg inline-block shadow-sm"
+            class="bg-blue-50 dark:bg-blue-900/20 px-6 py-3 rounded-lg inline-block shadow-sm"
         >
             <p class="text-sm text-gray-600 dark:text-gray-300">
                 <svg

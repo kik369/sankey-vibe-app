@@ -31,10 +31,19 @@
     // Define dimensions
     const width = 800;
     const height = 400;
-    const margin = { top: 10, right: 100, bottom: 10, left: 100 };
+    const margin = { top: 20, right: 120, bottom: 20, left: 120 };
 
-    // Create a color scale for nodes
-    const colorScale = scaleOrdinal(schemeCategory10);
+    // Create a color scale for nodes with better color scheme
+    const colorScale = scaleOrdinal([
+        '#3b82f6', // blue-500
+        '#6366f1', // indigo-500
+        '#8b5cf6', // violet-500
+        '#ec4899', // pink-500
+        '#ef4444', // red-500
+        '#f97316', // orange-500
+        '#f59e0b', // amber-500
+        '#10b981', // emerald-500
+    ]);
 
     onMount(() => {
         svgSelection = d3
@@ -104,11 +113,11 @@
         const linkGroup = svgSelection
             .append('g')
             .attr('fill', 'none')
-            .attr('stroke-opacity', 0.5)
-            .selectAll('g') // Select groups for hover effects later
+            .attr('stroke-opacity', 0.4) // Reduced opacity
+            .selectAll('g')
             .data(layoutLinks)
-            .join('g') // Use join for enter/update/exit
-            .style('mix-blend-mode', 'multiply'); // Blending mode for overlapping links
+            .join('g')
+            .style('mix-blend-mode', 'multiply');
 
         linkGroup
             .append('path')
@@ -152,13 +161,13 @@
         svgSelection
             .append('g')
             .attr('font-family', 'system-ui, sans-serif')
-            .attr('font-size', 11) // Slightly larger font
-            .attr('font-weight', 500) // Medium weight for better readability
+            .attr('font-size', 12) // Larger font
+            .attr('font-weight', 600) // Semi-bold for better readability
             .selectAll('text')
             .data(layoutNodes)
             .join('text')
             .attr('x', d =>
-                (d.x0 ?? 0) < width / 2 ? (d.x1 ?? 0) + 6 : (d.x0 ?? 0) - 6
+                (d.x0 ?? 0) < width / 2 ? (d.x1 ?? 0) + 8 : (d.x0 ?? 0) - 8
             )
             .attr('y', d => ((d.y1 ?? 0) + (d.y0 ?? 0)) / 2)
             .attr('dy', '0.35em')
@@ -170,6 +179,9 @@
     });
 </script>
 
-<div class="w-full aspect-[2/1] overflow-x-auto">
-    <svg bind:this={svgRef} class="w-full h-full min-w-[800px]"></svg>
+<div class="w-full overflow-x-auto">
+    <div class="min-h-[400px] flex items-center justify-center">
+        <svg bind:this={svgRef} class="w-full h-full min-w-[800px] max-w-full"
+        ></svg>
+    </div>
 </div>

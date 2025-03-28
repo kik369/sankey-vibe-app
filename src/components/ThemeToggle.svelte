@@ -5,7 +5,9 @@
 
 <button
     onclick={() => themeStore.toggle()}
-    class="p-2 rounded-full bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 transition-all duration-300 transform hover:scale-105 shadow-sm"
+    class="p-2.5 rounded-full bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600
+           focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400
+           transition-all duration-300 transform hover:scale-105 shadow-md"
     aria-label="Toggle theme"
 >
     {#if $themeStore === 'light'}
