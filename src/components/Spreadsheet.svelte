@@ -14,16 +14,8 @@
     function updateHotTheme(theme: string) {
         if (!hot) return;
 
-        // Force Handsontable to redraw with new theme
+        // Force Handsontable to redraw with new theme styling from global CSS
         hot.render();
-
-        // Optional: Update some settings based on theme
-        if (theme === 'dark') {
-            // Apply any dark theme specific settings
-            container.classList.add('hot-dark-theme');
-        } else {
-            container.classList.remove('hot-dark-theme');
-        }
     }
 
     // Better initial example data
@@ -37,43 +29,6 @@
 
     onMount(() => {
         if (!container) return;
-
-        // Add custom CSS to style Handsontable in both themes
-        const styleElement = document.createElement('style');
-        styleElement.textContent = `
-            /* Light theme styles */
-            .handsontable {
-                font-size: 14px;
-                font-family: system-ui, sans-serif;
-            }
-
-            /* Headers */
-            .ht_clone_top th, .ht_clone_left th {
-                background-color: #EEF2FF !important;
-                color: #4F46E5 !important;
-                font-weight: 600 !important;
-            }
-
-            /* Dark theme adjustments */
-            .dark .ht_clone_top th, .dark .ht_clone_left th {
-                background-color: #312E81 !important;
-                color: #C7D2FE !important;
-            }
-
-            .dark .handsontable td {
-                color: #E5E7EB !important;
-                background-color: #1F2937 !important;
-            }
-
-            .dark .handsontable tr:hover td {
-                background-color: #374151 !important;
-            }
-
-            .dark .handsontable .current {
-                background-color: rgba(79, 70, 229, 0.2) !important;
-            }
-        `;
-        document.head.appendChild(styleElement);
 
         hot = new Handsontable(container, {
             data: initialData,

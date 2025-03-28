@@ -69,7 +69,9 @@
             return;
         }
 
-        // Create a deep copy for d3-sankey to mutate without affecting Svelte's state directly
+        // Create a deep copy for d3-sankey to mutate.
+        // d3-sankey modifies the nodes/links objects directly, which would cause
+        // errors if done on Svelte's reactive $state proxies.
         const graphData = {
             nodes: nodes.map(d => ({ ...d })),
             links: validLinks.map(d => ({ ...d })),

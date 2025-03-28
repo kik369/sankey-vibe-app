@@ -28,10 +28,13 @@ function createThemeStore(): Writable<Theme> & { toggle: () => void } {
             }
 
             // Force a repaint to ensure theme changes apply everywhere
+            // Force a repaint/reflow. Some browsers (especially with complex components
+            // like Handsontable) might not immediately apply all theme style changes
+            // consistently without this. It forces the browser to recalculate styles.
             document.body.style.display = 'none';
             setTimeout(() => {
                 document.body.style.display = '';
-            }, 5);
+            }, 5); // A small delay is sufficient
 
             try {
                 localStorage.setItem('theme', theme);

@@ -47,29 +47,7 @@
 }
 
 @layer components {
-    /* Card component styling */
-    .card {
-        @apply bg-white dark:bg-gray-800 rounded-xl shadow-md overflow-hidden transition-all;
-    }
-
-    .card:hover {
-        @apply shadow-lg;
-    }
-
-    /* Button styling */
-    .btn {
-        @apply px-4 py-2 rounded-md font-medium transition-all duration-250
-               focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2;
-    }
-
-    .btn-primary {
-        @apply bg-blue-600 hover:bg-blue-700 text-white;
-    }
-
-    .btn-secondary {
-        @apply bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600
-               text-gray-800 dark:text-gray-200;
-    }
+    /* Custom component styles would go here */
 }
 
 /* Comprehensive Handsontable styling */
