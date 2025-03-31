@@ -14,7 +14,7 @@
     import { themeStore } from '@/lib/theme.svelte';
     // Add these imports for the color scale
     import { scaleOrdinal } from 'd3-scale';
-    import { schemeCategory10 } from 'd3-scale-chromatic';
+    import { drag } from 'd3-drag';
 
     const { diagramData }: { diagramData: DiagramData } = $props();
     let svgRef: SVGSVGElement;
@@ -28,10 +28,13 @@
     type LayoutNode = SankeyNode<Node, Link>;
     type LayoutLink = SankeyLink<Node, Link>;
 
-    // Define dimensions
-    const width = 800;
-    const height = 400;
-    const margin = { top: 20, right: 120, bottom: 20, left: 120 };
+    // Define dimensions with width being responsive
+    let width = 1200; // Default width, will be updated based on container
+    const height = 800; // Increased from 600 to 800
+    const margin = { top: 40, right: 120, bottom: 40, left: 120 }; // Increased top/bottom margins
+
+    // Container reference for measuring available width
+    let containerRef: HTMLDivElement;
 
     // Create a color scale for nodes with better color scheme
     const colorScale = scaleOrdinal([
@@ -46,15 +49,47 @@
     ]);
 
     onMount(() => {
+        // Set initial SVG attributes
         svgSelection = d3
             .select(svgRef)
-            .attr('width', width)
             .attr('height', height)
-            .attr('viewBox', `0 0 ${width} ${height}`)
-            .attr('style', 'max-width: 100%; height: auto;');
+            .attr('preserveAspectRatio', 'xMinYMid meet');
+
+        // Initial render with responsive sizing
+        updateDiagramSize();
+
+        // Add window resize listener
+        window.addEventListener('resize', updateDiagramSize);
+
+        // Cleanup function
+        return () => {
+            window.removeEventListener('resize', updateDiagramSize);
+        };
     });
 
-    $effect(() => {
+    // Update diagram size based on container width
+    function updateDiagramSize() {
+        if (!containerRef || !svgSelection) return;
+
+        // Use window width for full viewport width rather than container width
+        const viewportWidth = window.innerWidth;
+
+        // Update width to use nearly full viewport width (with small margin)
+        width = viewportWidth - 40; // 20px margin on each side
+
+        // Update the SVG viewBox to use the new width
+        svgSelection
+            .attr('width', width)
+            .attr('viewBox', `0 0 ${width} ${height}`);
+
+        // Redraw diagram if we have data
+        if (nodes && nodes.length > 0 && links && links.length > 0) {
+            renderSankeyDiagram();
+        }
+    }
+
+    // Separate the diagram rendering logic for reuse
+    function renderSankeyDiagram() {
         // Ensure svgSelection is initialized and we have valid data
         if (!svgSelection || !nodes || !links || nodes.length === 0) {
             if (svgSelection) svgSelection.selectAll('*').remove(); // Clear SVG if no data
@@ -111,18 +146,16 @@
 
         const { nodes: layoutNodes, links: layoutLinks } = layoutResult;
 
-        // Add links (paths)
+        // Add a group for links
         const linkGroup = svgSelection
             .append('g')
+            .attr('class', 'links')
             .attr('fill', 'none')
-            .attr('stroke-opacity', 0.4) // Reduced opacity
-            .selectAll('g')
+            .attr('stroke-opacity', 0.4)
+            .selectAll('path')
             .data(layoutLinks)
-            .join('g')
-            .style('mix-blend-mode', 'multiply');
-
-        linkGroup
-            .append('path')
+            .join('path')
+            .attr('class', 'link')
             .attr('d', sankeyLinkHorizontal())
             .attr('stroke', d => {
                 // Use the source node color with reduced opacity for links
@@ -130,44 +163,49 @@
                 return d.value > 0 ? colorScale(sourceNode.name) : '#9CA3AF';
             })
             .attr('stroke-width', d => Math.max(1, d.width ?? 1))
-            .attr('stroke-opacity', 0.4); // Reduced from 0.5 for a more subtle look
+            .attr('stroke-opacity', 0.4);
 
         // Add titles for tooltips on links
         linkGroup.append('title').text(d => {
             // After layout, source and target are LayoutNode objects
             const sourceNode = d.source as LayoutNode;
             const targetNode = d.target as LayoutNode;
-            return `${sourceNode.name} → ${targetNode.name}\nValue: ${d.value}`;
+            return `${sourceNode.name} → ${targetNode.name}\nValue: $${d.value}M`;
         });
 
-        // Add nodes (rectangles)
-        const nodeGroup = svgSelection
+        // Create a group for each node with dragging behavior
+        const nodeGroups = svgSelection
             .append('g')
+            .attr('class', 'nodes')
             .attr('stroke', '#000')
-            .attr('stroke-opacity', 0.15) // Reduced from 0.5 for a more subtle border
-            .selectAll('rect')
+            .attr('stroke-opacity', 0.15)
+            .selectAll<SVGGElement, LayoutNode>('g')
             .data(layoutNodes)
-            .join('rect')
+            .join('g')
+            .attr('class', 'node')
+            .call(setupDragBehavior);
+
+        // Add rectangles to each node group
+        nodeGroups
+            .append('rect')
             .attr('x', d => d.x0 ?? 0)
             .attr('y', d => d.y0 ?? 0)
             .attr('height', d => Math.max(1, (d.y1 ?? 0) - (d.y0 ?? 0)))
             .attr('width', d => (d.x1 ?? 0) - (d.x0 ?? 0))
             .attr('fill', d => colorScale(d.name))
-            .attr('rx', 4) // Add rounded corners to nodes
-            .attr('ry', 4);
+            .attr('rx', 4)
+            .attr('ry', 4)
+            .attr('cursor', 'move');
 
         // Add titles for tooltips on nodes
-        nodeGroup.append('title').text(d => `${d.name}\nValue: ${d.value}`); // d.value is calculated by d3-sankey
+        nodeGroups.append('title').text(d => `${d.name}\nValue: $${d.value}M`);
 
-        // Add node labels (text)
-        svgSelection
-            .append('g')
+        // Add node labels (text) to each node group
+        nodeGroups
+            .append('text')
             .attr('font-family', 'system-ui, sans-serif')
-            .attr('font-size', 12) // Larger font
-            .attr('font-weight', 600) // Semi-bold for better readability
-            .selectAll('text')
-            .data(layoutNodes)
-            .join('text')
+            .attr('font-size', 12)
+            .attr('font-weight', 600)
             .attr('x', d =>
                 (d.x0 ?? 0) < width / 2 ? (d.x1 ?? 0) + 8 : (d.x0 ?? 0) - 8
             )
@@ -177,13 +215,255 @@
                 (d.x0 ?? 0) < width / 2 ? 'start' : 'end'
             )
             .text(d => d.name)
-            .attr('fill', 'currentColor'); // This ensures text matches the theme color
+            .attr('fill', 'currentColor')
+            .attr('pointer-events', 'none'); // Prevent interfering with drag
+
+        // Add value labels inside nodes
+        nodeGroups
+            .append('text')
+            .attr('font-family', 'system-ui, sans-serif')
+            .attr('font-size', 10)
+            .attr('font-weight', 'bold')
+            .attr('fill', 'white')
+            .attr('stroke', 'none')
+            .filter(d => (d.y1 ?? 0) - (d.y0 ?? 0) > 14)
+            .attr('x', d => ((d.x0 ?? 0) + (d.x1 ?? 0)) / 2)
+            .attr('y', d => ((d.y0 ?? 0) + (d.y1 ?? 0)) / 2)
+            .attr('dy', '0.35em')
+            .attr('text-anchor', 'middle')
+            .text(d => `$${(d.value ?? 0).toFixed(0)}M`)
+            .attr('pointer-events', 'none'); // Prevent interfering with drag
+
+        // Function to create drag behavior
+        function setupDragBehavior(
+            selection: d3.Selection<SVGGElement, LayoutNode, any, any>
+        ) {
+            selection.call(
+                drag<SVGGElement, LayoutNode>()
+                    .subject(d => d)
+                    .on('start', function (event, d) {
+                        d3.select(this).raise().attr('opacity', 0.7);
+                    })
+                    .on('drag', function (event, d) {
+                        // Only allow vertical movement (within reasonable bounds)
+                        const originalHeight = (d.y1 ?? 0) - (d.y0 ?? 0);
+                        const newY = Math.max(
+                            margin.top,
+                            Math.min(
+                                height - margin.bottom - originalHeight,
+                                event.y
+                            )
+                        );
+
+                        // Calculate the vertical shift
+                        const deltaY = newY - (d.y0 ?? 0);
+
+                        // Update node position
+                        d.y0 = newY;
+                        d.y1 = newY + originalHeight;
+
+                        // Update the visual position of this node
+                        const nodeGroup = d3.select(this);
+                        nodeGroup.select('rect').attr('y', d.y0);
+
+                        nodeGroup
+                            .select('text:first-of-type')
+                            .attr('y', ((d.y1 ?? 0) + (d.y0 ?? 0)) / 2);
+
+                        nodeGroup
+                            .select('text:nth-of-type(2)')
+                            .attr('y', ((d.y0 ?? 0) + (d.y1 ?? 0)) / 2);
+
+                        // Update all links to and from this node
+                        const nodeIndex = d.index;
+
+                        // Find all connected links and update them
+                        svgSelection
+                            .selectAll<SVGPathElement, LayoutLink>('.link')
+                            .each(function (link) {
+                                const source = link.source as LayoutNode;
+                                const target = link.target as LayoutNode;
+
+                                if (source.index === nodeIndex) {
+                                    // This is a source link - update y0 coordinates
+                                    link.y0 =
+                                        (source.y0 ?? 0) +
+                                        ((source.y1 ?? 0) - (source.y0 ?? 0)) /
+                                            2;
+                                } else if (target.index === nodeIndex) {
+                                    // This is a target link - update y1 coordinates
+                                    link.y1 =
+                                        (target.y0 ?? 0) +
+                                        ((target.y1 ?? 0) - (target.y0 ?? 0)) /
+                                            2;
+                                }
+                            })
+                            .attr('d', sankeyLinkHorizontal());
+
+                        // Update link label positions
+                        svgSelection
+                            .selectAll<SVGTextElement, LayoutLink>(
+                                '.link-labels text'
+                            )
+                            .filter(link => {
+                                const source = link.source as LayoutNode;
+                                const target = link.target as LayoutNode;
+                                return (
+                                    source.index === nodeIndex ||
+                                    target.index === nodeIndex
+                                );
+                            })
+                            .attr('y', d => (d.y0 ?? 0) - 3);
+
+                        // Also update the background of the link labels
+                        svgSelection
+                            .selectAll<SVGTextElement, LayoutLink>(
+                                '.link-labels text + text'
+                            )
+                            .filter(link => {
+                                const source = link.source as LayoutNode;
+                                const target = link.target as LayoutNode;
+                                return (
+                                    source.index === nodeIndex ||
+                                    target.index === nodeIndex
+                                );
+                            })
+                            .attr('y', d => (d.y0 ?? 0) - 3);
+                    })
+                    .on('end', function (event, d) {
+                        d3.select(this).attr('opacity', 1);
+
+                        // Get current node positions to preserve after layout recalculation
+                        const nodePositions = new Map<
+                            number,
+                            { y0: number; y1: number }
+                        >();
+                        layoutNodes.forEach(node => {
+                            nodePositions.set(node.index as number, {
+                                y0: node.y0 ?? 0,
+                                y1: node.y1 ?? 0,
+                            });
+                        });
+
+                        // Recalculate layout to ensure proper link positions
+                        sankeyLayout.update(layoutResult);
+
+                        // Restore custom node positions
+                        layoutNodes.forEach(node => {
+                            const savedPos = nodePositions.get(
+                                node.index as number
+                            );
+                            if (savedPos) {
+                                node.y0 = savedPos.y0;
+                                node.y1 = savedPos.y1;
+                            }
+                        });
+
+                        // Update all visual elements with new positions
+                        svgSelection
+                            .selectAll<SVGRectElement, LayoutNode>('.node rect')
+                            .attr('y', d => d.y0 ?? 0)
+                            .attr('height', d =>
+                                Math.max(1, (d.y1 ?? 0) - (d.y0 ?? 0))
+                            );
+
+                        svgSelection
+                            .selectAll<
+                                SVGTextElement,
+                                LayoutNode
+                            >('.node text:first-of-type')
+                            .attr('y', d => ((d.y1 ?? 0) + (d.y0 ?? 0)) / 2);
+
+                        svgSelection
+                            .selectAll<
+                                SVGTextElement,
+                                LayoutNode
+                            >('.node text:nth-of-type(2)')
+                            .attr('y', d => ((d.y0 ?? 0) + (d.y1 ?? 0)) / 2);
+
+                        // Update all links
+                        svgSelection
+                            .selectAll<SVGPathElement, LayoutLink>('.link')
+                            .attr('d', sankeyLinkHorizontal());
+
+                        // Update link labels
+                        svgSelection
+                            .selectAll<SVGTextElement, LayoutLink>(
+                                '.link-labels text'
+                            )
+                            .attr(
+                                'x',
+                                d =>
+                                    (((d.source as LayoutNode).x1 ?? 0) +
+                                        ((d.target as LayoutNode).x0 ?? 0)) /
+                                    2
+                            )
+                            .attr('y', d => (d.y0 ?? 0) - 3);
+                    })
+            );
+        }
+
+        // Add link value labels (near the center of the links)
+        const linkLabelGroup = svgSelection
+            .append('g')
+            .attr('class', 'link-labels')
+            .attr('font-family', 'system-ui, sans-serif')
+            .attr('font-size', 9)
+            .attr('fill', 'currentColor')
+            .attr('stroke', 'none')
+            .selectAll('text')
+            .data(layoutLinks.filter(d => (d.width ?? 0) >= 1 && d.value > 0))
+            .join('text')
+            .attr(
+                'x',
+                d =>
+                    (((d.source as LayoutNode).x1 ?? 0) +
+                        ((d.target as LayoutNode).x0 ?? 0)) /
+                    2
+            )
+            .attr('y', d => (d.y0 ?? 0) - 3)
+            .attr('dy', '0.35em')
+            .attr('text-anchor', 'middle')
+            .text(d => `$${(d.value ?? 0).toFixed(0)}M`);
+
+        // Add a subtle background to link labels for better readability
+        linkLabelGroup
+            .clone(true)
+            .lower()
+            .attr('stroke', 'var(--diagram-background, #ffffff)')
+            .attr('stroke-width', 2.5)
+            .attr('stroke-linejoin', 'round');
+    }
+
+    // Add reactive effect to call renderSankeyDiagram when data changes
+    $effect(() => {
+        if (svgSelection && nodes && links) {
+            renderSankeyDiagram();
+        }
     });
 </script>
 
-<div class="w-full overflow-x-auto">
-    <div class="min-h-[400px] flex items-center justify-center">
-        <svg bind:this={svgRef} class="w-full h-full min-w-[800px] max-w-full"
-        ></svg>
+<div class="full-width-container">
+    <div
+        bind:this={containerRef}
+        class="min-h-[800px] flex items-center justify-center bg-white dark:bg-gray-900"
+        style="--diagram-background: {$themeStore === 'dark'
+            ? '#1f2937'
+            : '#ffffff'};"
+    >
+        <svg bind:this={svgRef} class="w-full h-full px-6"></svg>
     </div>
 </div>
+
+<style>
+    /* Full width container that breaks out of parent constraints */
+    .full-width-container {
+        width: 100vw;
+        position: relative;
+        left: 50%;
+        right: 50%;
+        margin-left: -50vw;
+        margin-right: -50vw;
+        margin-bottom: 2rem;
+    }
+</style>

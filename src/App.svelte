@@ -40,30 +40,62 @@
         <ThemeToggle />
     </div>
 
-    <div class="w-full max-w-5xl mx-auto space-y-12 px-4">
-        <div
-            class="bg-white dark:bg-gray-800 rounded-lg shadow-md hover:shadow-lg p-8 mb-8 border border-gray-200 dark:border-gray-700 transition-shadow duration-300"
-        >
+    <div class="w-full max-w-6xl mx-auto space-y-12 px-4">
+        <div class="mb-8">
             <div
-                class="border-b border-gray-200 dark:border-gray-700 pb-5 mb-6"
+                class="border-b border-gray-200 dark:border-gray-700 pb-5 mb-6 flex justify-between items-center"
             >
                 <h2
                     class="text-xl font-semibold text-gray-800 dark:text-gray-200"
                 >
                     Data Input
                 </h2>
-                <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">
-                    Enter source, target, and value for each connection
-                </p>
+                <div class="relative group">
+                    <button
+                        class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 focus:outline-none"
+                        aria-label="View instructions"
+                    >
+                        <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            class="h-5 w-5"
+                            viewBox="0 0 20 20"
+                            fill="currentColor"
+                        >
+                            <path
+                                fill-rule="evenodd"
+                                d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2h-1V9a1 1 0 00-1-1z"
+                                clip-rule="evenodd"
+                            />
+                        </svg>
+                    </button>
+                    <div
+                        class="absolute right-0 w-64 p-4 mt-2 bg-white dark:bg-gray-800 rounded-lg shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition duration-200 z-10 border border-gray-200 dark:border-gray-700"
+                    >
+                        <div class="text-sm text-gray-600 dark:text-gray-400">
+                            <h3 class="font-semibold mb-2">Instructions:</h3>
+                            <ul class="list-disc pl-4 space-y-1">
+                                <li>
+                                    Enter source and target names for each flow
+                                    connection
+                                </li>
+                                <li>
+                                    Use numeric values for the flow magnitude
+                                </li>
+                                <li>
+                                    Add rows as needed for additional
+                                    connections
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
             </div>
             <div>
                 <Spreadsheet {diagramData} />
             </div>
         </div>
 
-        <div
-            class="bg-white dark:bg-gray-800 rounded-lg shadow-md hover:shadow-lg p-8 mb-8 border border-gray-200 dark:border-gray-700 transition-shadow duration-300"
-        >
+        <div class="mb-8">
             <div
                 class="border-b border-gray-200 dark:border-gray-700 pb-5 mb-6"
             >
