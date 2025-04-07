@@ -30,8 +30,8 @@
 
     // Define dimensions with width being responsive
     let width = 1200; // Default width, will be updated based on container
-    const height = 800; // Increased from 600 to 800
-    const margin = { top: 40, right: 120, bottom: 40, left: 120 }; // Increased top/bottom margins
+    const height = 1400; // Increased from 1200 to 1400 for even more vertical space
+    const margin = { top: 100, right: 180, bottom: 100, left: 180 }; // Further increased margins
 
     // Container reference for measuring available width
     let containerRef: HTMLDivElement;
@@ -118,8 +118,9 @@
         // Specify Node and Link types for d3Sankey
         const sankeyLayout = d3Sankey<Node, Link>()
             // Remove nodeId to use default index-based node identification
-            .nodeWidth(15)
-            .nodePadding(10)
+            .nodeWidth(22) // Increased from 20 to 22
+            .nodePadding(70) // Significantly increased from 40 to 70 for much more vertical spacing
+            .iterations(50) // Increased from 32 to 50 for even better node positioning
             // Adjust extent based on margins
             .extent([
                 [margin.left, margin.top],
@@ -151,19 +152,19 @@
             .append('g')
             .attr('class', 'links')
             .attr('fill', 'none')
-            .attr('stroke-opacity', 0.4)
+            .attr('stroke-opacity', 0.55) // Slightly increased from 0.5 to 0.55
             .selectAll('path')
             .data(layoutLinks)
             .join('path')
             .attr('class', 'link')
-            .attr('d', sankeyLinkHorizontal())
+            .attr('d', sankeyLinkHorizontal()) // Removed curvature change due to type error.
             .attr('stroke', d => {
                 // Use the source node color with reduced opacity for links
                 const sourceNode = d.source as LayoutNode;
                 return d.value > 0 ? colorScale(sourceNode.name) : '#9CA3AF';
             })
             .attr('stroke-width', d => Math.max(1, d.width ?? 1))
-            .attr('stroke-opacity', 0.4);
+            .attr('stroke-opacity', 0.55);
 
         // Add titles for tooltips on links
         linkGroup.append('title').text(d => {
@@ -245,8 +246,11 @@
                         d3.select(this).raise().attr('opacity', 0.7);
                     })
                     .on('drag', function (event, d) {
-                        // Only allow vertical movement (within reasonable bounds)
+                        // Allow both horizontal and vertical movement
                         const originalHeight = (d.y1 ?? 0) - (d.y0 ?? 0);
+                        const originalWidth = (d.x1 ?? 0) - (d.x0 ?? 0);
+
+                        // Calculate new position with bounds checking
                         const newY = Math.max(
                             margin.top,
                             Math.min(
@@ -255,23 +259,55 @@
                             )
                         );
 
-                        // Calculate the vertical shift
-                        const deltaY = newY - (d.y0 ?? 0);
+                        // Determine if this is a left-side or right-side node based on x position
+                        const isLeftSide = (d.x0 ?? 0) < width / 2;
 
-                        // Update node position
+                        // Set horizontal movement constraints based on node side
+                        // Left-side nodes can move left/right within the left half of the diagram
+                        // Right-side nodes can move left/right within the right half of the diagram
+                        let newX;
+                        if (isLeftSide) {
+                            // Left side nodes - constrain to left half with margins
+                            newX = Math.max(
+                                margin.left,
+                                Math.min(
+                                    width / 2 - originalWidth - 50, // Stay within left half with some margin
+                                    event.x
+                                )
+                            );
+                        } else {
+                            // Right side nodes - constrain to right half with margins
+                            newX = Math.max(
+                                width / 2 + 50, // Stay within right half with some margin
+                                Math.min(
+                                    width - margin.right - originalWidth,
+                                    event.x
+                                )
+                            );
+                        }
+
+                        // Update node position (both X and Y coordinates)
                         d.y0 = newY;
                         d.y1 = newY + originalHeight;
+                        d.x0 = newX;
+                        d.x1 = newX + originalWidth;
 
                         // Update the visual position of this node
                         const nodeGroup = d3.select(this);
-                        nodeGroup.select('rect').attr('y', d.y0);
+                        nodeGroup
+                            .select('rect')
+                            .attr('x', d.x0)
+                            .attr('y', d.y0);
 
+                        // Update the text positions
                         nodeGroup
                             .select('text:first-of-type')
+                            .attr('x', isLeftSide ? d.x1 + 8 : d.x0 - 8)
                             .attr('y', ((d.y1 ?? 0) + (d.y0 ?? 0)) / 2);
 
                         nodeGroup
                             .select('text:nth-of-type(2)')
+                            .attr('x', ((d.x0 ?? 0) + (d.x1 ?? 0)) / 2)
                             .attr('y', ((d.y0 ?? 0) + (d.y1 ?? 0)) / 2);
 
                         // Update all links to and from this node
@@ -285,17 +321,19 @@
                                 const target = link.target as LayoutNode;
 
                                 if (source.index === nodeIndex) {
-                                    // This is a source link - update y0 coordinates
+                                    // This is a source link - update y0 and x0 coordinates
                                     link.y0 =
                                         (source.y0 ?? 0) +
                                         ((source.y1 ?? 0) - (source.y0 ?? 0)) /
                                             2;
+                                    link.x0 = source.x1 ?? 0;
                                 } else if (target.index === nodeIndex) {
-                                    // This is a target link - update y1 coordinates
+                                    // This is a target link - update y1 and x1 coordinates
                                     link.y1 =
                                         (target.y0 ?? 0) +
                                         ((target.y1 ?? 0) - (target.y0 ?? 0)) /
                                             2;
+                                    link.x1 = target.x0 ?? 0;
                                 }
                             })
                             .attr('d', sankeyLinkHorizontal());
@@ -313,6 +351,13 @@
                                     target.index === nodeIndex
                                 );
                             })
+                            .attr(
+                                'x',
+                                d =>
+                                    (((d.source as LayoutNode).x1 ?? 0) +
+                                        ((d.target as LayoutNode).x0 ?? 0)) /
+                                    2
+                            )
                             .attr('y', d => (d.y0 ?? 0) - 3);
 
                         // Also update the background of the link labels
@@ -328,6 +373,13 @@
                                     target.index === nodeIndex
                                 );
                             })
+                            .attr(
+                                'x',
+                                d =>
+                                    (((d.source as LayoutNode).x1 ?? 0) +
+                                        ((d.target as LayoutNode).x0 ?? 0)) /
+                                    2
+                            )
                             .attr('y', d => (d.y0 ?? 0) - 3);
                     })
                     .on('end', function (event, d) {
@@ -336,10 +388,12 @@
                         // Get current node positions to preserve after layout recalculation
                         const nodePositions = new Map<
                             number,
-                            { y0: number; y1: number }
+                            { x0: number; x1: number; y0: number; y1: number }
                         >();
                         layoutNodes.forEach(node => {
                             nodePositions.set(node.index as number, {
+                                x0: node.x0 ?? 0,
+                                x1: node.x1 ?? 0,
                                 y0: node.y0 ?? 0,
                                 y1: node.y1 ?? 0,
                             });
@@ -354,6 +408,8 @@
                                 node.index as number
                             );
                             if (savedPos) {
+                                node.x0 = savedPos.x0;
+                                node.x1 = savedPos.x1;
                                 node.y0 = savedPos.y0;
                                 node.y1 = savedPos.y1;
                             }
@@ -362,23 +418,31 @@
                         // Update all visual elements with new positions
                         svgSelection
                             .selectAll<SVGRectElement, LayoutNode>('.node rect')
+                            .attr('x', d => d.x0 ?? 0)
                             .attr('y', d => d.y0 ?? 0)
+                            .attr('width', d => (d.x1 ?? 0) - (d.x0 ?? 0))
                             .attr('height', d =>
                                 Math.max(1, (d.y1 ?? 0) - (d.y0 ?? 0))
                             );
 
+                        // Update node label positions
                         svgSelection
-                            .selectAll<
-                                SVGTextElement,
-                                LayoutNode
-                            >('.node text:first-of-type')
+                            .selectAll<SVGTextElement, LayoutNode>(
+                                '.node text:first-of-type'
+                            )
+                            .attr('x', d =>
+                                (d.x0 ?? 0) < width / 2
+                                    ? (d.x1 ?? 0) + 8
+                                    : (d.x0 ?? 0) - 8
+                            )
                             .attr('y', d => ((d.y1 ?? 0) + (d.y0 ?? 0)) / 2);
 
+                        // Update value label positions
                         svgSelection
-                            .selectAll<
-                                SVGTextElement,
-                                LayoutNode
-                            >('.node text:nth-of-type(2)')
+                            .selectAll<SVGTextElement, LayoutNode>(
+                                '.node text:nth-of-type(2)'
+                            )
+                            .attr('x', d => ((d.x0 ?? 0) + (d.x1 ?? 0)) / 2)
                             .attr('y', d => ((d.y0 ?? 0) + (d.y1 ?? 0)) / 2);
 
                         // Update all links
@@ -446,12 +510,12 @@
 <div class="full-width-container">
     <div
         bind:this={containerRef}
-        class="min-h-[800px] flex items-center justify-center bg-white dark:bg-gray-900"
+        class="min-h-[95vh] flex items-center justify-center bg-white dark:bg-gray-900 p-12"
         style="--diagram-background: {$themeStore === 'dark'
             ? '#1f2937'
             : '#ffffff'};"
     >
-        <svg bind:this={svgRef} class="w-full h-full px-6"></svg>
+        <svg bind:this={svgRef} class="w-full h-full"></svg>
     </div>
 </div>
 
@@ -465,5 +529,6 @@
         margin-left: -50vw;
         margin-right: -50vw;
         margin-bottom: 2rem;
+        min-height: 95vh; /* Increased from 90vh to 95vh for more vertical space */
     }
 </style>
