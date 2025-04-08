@@ -85,6 +85,9 @@ export default {
                     },
                 },
             }),
+            fontFamily: {
+                sans: ['Geist Sans', 'sans-serif'],
+            },
         },
     },
     plugins: [],

@@ -33,6 +33,7 @@ This project is a web application built with Svelte, Vite, TypeScript, and Tailw
 -   **Build Tool:** Vite
 -   **Language:** TypeScript
 -   **Styling:** Tailwind CSS, PostCSS
+-   **Typography:** Geist Sans (Google Fonts)
 -   **Charting:** D3.js (`d3`, `d3-sankey`)
 -   **Data Input:** Handsontable
 -   **Package Manager:** Bun
